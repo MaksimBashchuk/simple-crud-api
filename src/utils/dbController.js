@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require('uuid');
+
 const inMemoryDB = [];
 
 const getAllPersons = () =>
@@ -5,6 +7,16 @@ const getAllPersons = () =>
     resolve(inMemoryDB);
   });
 
+const addPerson = (person) => {
+  const newPerson = {
+    id: uuidv4(),
+    ...person,
+  };
+  inMemoryDB.push(newPerson);
+  return newPerson;
+};
+
 module.exports = {
   getAllPersons,
+  addPerson,
 };
