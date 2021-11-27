@@ -1,6 +1,6 @@
 const http = require('http');
 require('dotenv').config();
-const { fieldsChecker } = require('./utils/helpers');
+const { getReqBody } = require('./utils/helpers');
 const { addPerson, getAllPersons } = require('./utils/dbController');
 
 const PORT = process.env.PORT || 5000;
@@ -16,26 +16,12 @@ const app = () => {
     }
 
     if (req.url === '/person' && req.method === 'POST') {
-      let body = '';
-      req.on('data', (chunk) => {
-        body += chunk.toString();
+      const reqBody = await getReqBody(req);
+      const newPerson = await addPerson(JSON.parse(reqBody));
+      res.writeHead(201, {
+        'Content-Type': 'application/json',
       });
-
-      req.on('end', () => {
-        const parsedBody = JSON.parse(body);
-        if (!fieldsChecker(parsedBody)) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          return res.end(
-            JSON.stringify({
-              message: 'Request body should contain required fields',
-            })
-          );
-        }
-
-        const newPerson = addPerson(parsedBody);
-        res.writeHead(201, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify(newPerson));
-      });
+      return res.end(JSON.stringify(newPerson));
     }
   });
 

@@ -7,14 +7,15 @@ const getAllPersons = () =>
     resolve(inMemoryDB);
   });
 
-const addPerson = (person) => {
-  const newPerson = {
-    id: uuidv4(),
-    ...person,
-  };
-  inMemoryDB.push(newPerson);
-  return newPerson;
-};
+const addPerson = (person) =>
+  new Promise((resolve, reject) => {
+    const newPerson = {
+      id: uuidv4(),
+      ...person,
+    };
+    inMemoryDB.push(newPerson);
+    resolve(newPerson);
+  });
 
 module.exports = {
   getAllPersons,
