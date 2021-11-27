@@ -17,7 +17,10 @@ const getReqBody = (req) =>
 
 const fieldsChecker = (body) => requiredFields.every((item) => body[item]);
 
+const getIdFromURL = (url) => url.split('/')[2];
+
 module.exports = {
   getReqBody,
   fieldsChecker,
+  getIdFromURL,
 };

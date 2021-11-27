@@ -17,7 +17,14 @@ const addPerson = (person) =>
     resolve(newPerson);
   });
 
+const getPersonById = (id) =>
+  new Promise((resolve, reject) => {
+    const person = inMemoryDB.find((item) => item.id === id);
+    resolve(person);
+  });
+
 module.exports = {
   getAllPersons,
   addPerson,
+  getPersonById,
 };
