@@ -6,6 +6,7 @@ const {
   addPerson,
   getAllPersons,
   getPersonById,
+  updatePerson,
 } = require('./utils/dbController');
 const { messages } = require('./utils/constants');
 
@@ -47,8 +48,8 @@ const app = () => {
     }
 
     if (req.url === '/person' && req.method === 'POST') {
-      const reqBody = await getReqBody(req);
-      if (!fieldsChecker(JSON.parse(reqBody))) {
+      const reqBody = JSON.parse(await getReqBody(req));
+      if (!fieldsChecker(reqBody)) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         return res.end(
           JSON.stringify({
@@ -57,9 +58,46 @@ const app = () => {
         );
       }
 
-      const newPerson = await addPerson(JSON.parse(reqBody));
+      const newPerson = await addPerson(reqBody);
       res.writeHead(201, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify(newPerson));
+    }
+
+    if (req.url.match(/\/person\/\w+/) && req.method === 'PUT') {
+      const id = getIdFromURL(req.url);
+      const reqBody = JSON.parse(await getReqBody(req));
+
+      if (!fieldsChecker(reqBody)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        return res.end(
+          JSON.stringify({
+            message: messages.REQUIRED_FIELDS,
+          })
+        );
+      }
+
+      if (!validate(id)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        return res.end(
+          JSON.stringify({
+            message: messages.INVALID_UUID,
+          })
+        );
+      }
+
+      if (!(await getPersonById(id))) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        return res.end(
+          JSON.stringify({
+            message: messages.PERSON_NOT_FOUND,
+          })
+        );
+      }
+
+      const updatedPerson = await updatePerson(id, reqBody);
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify(updatedPerson));
     }
   });
 

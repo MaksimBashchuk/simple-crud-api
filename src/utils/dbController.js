@@ -23,8 +23,19 @@ const getPersonById = (id) =>
     resolve(person);
   });
 
+const updatePerson = (id, body) =>
+  new Promise((resolve, reject) => {
+    const personIdx = inMemoryDB.findIndex((item) => item.id === id);
+    inMemoryDB[personIdx] = {
+      id,
+      ...body,
+    };
+    resolve(inMemoryDB[personIdx]);
+  });
+
 module.exports = {
   getAllPersons,
   addPerson,
   getPersonById,
+  updatePerson,
 };
