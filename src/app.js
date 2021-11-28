@@ -82,6 +82,9 @@ const app = () => {
       res.writeHead(204, { 'Content-Type': 'application/json' });
       return res.end();
     }
+
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ message: messages.NOT_FOUND }));
   });
 
   server.listen(PORT, () => {
