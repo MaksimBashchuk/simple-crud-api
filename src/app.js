@@ -7,6 +7,7 @@ const {
   getAllPersons,
   getPersonById,
   updatePerson,
+  deletePerson,
 } = require('./utils/dbController');
 const { messages } = require('./utils/constants');
 
@@ -98,6 +99,33 @@ const app = () => {
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify(updatedPerson));
+    }
+
+    if (req.url.match(/\/person\/\w+/) && req.method === 'DELETE') {
+      const id = getIdFromURL(req.url);
+
+      if (!validate(id)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        return res.end(
+          JSON.stringify({
+            message: messages.INVALID_UUID,
+          })
+        );
+      }
+
+      if (!(await getPersonById(id))) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        return res.end(
+          JSON.stringify({
+            message: messages.PERSON_NOT_FOUND,
+          })
+        );
+      }
+
+      await deletePerson(id);
+
+      res.writeHead(204, { 'Content-Type': 'application/json' });
+      return res.end();
     }
   });
 

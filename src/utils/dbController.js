@@ -33,9 +33,17 @@ const updatePerson = (id, body) =>
     resolve(inMemoryDB[personIdx]);
   });
 
+const deletePerson = (id) =>
+  new Promise((resolve, reject) => {
+    const personIdx = inMemoryDB.findIndex((item) => item.id === id);
+    inMemoryDB.splice(personIdx, 1);
+    resolve();
+  });
+
 module.exports = {
   getAllPersons,
   addPerson,
   getPersonById,
   updatePerson,
+  deletePerson,
 };
