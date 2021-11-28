@@ -1,15 +1,17 @@
 const http = require('http');
-const { validate } = require('uuid');
 require('dotenv').config();
-const { getReqBody, fieldsChecker, getIdFromURL } = require('./utils/helpers');
-const {
-  addPerson,
-  getAllPersons,
-  getPersonById,
-  updatePerson,
-  deletePerson,
-} = require('./utils/dbController');
+const { getReqBody, getIdFromURL } = require('./utils/helpers');
 const { messages } = require('./utils/constants');
+const {
+  isValidId,
+  checkRequiredFields,
+  isPersonExists,
+  getAllPersons,
+  getPerson,
+  updatePerson,
+  createPerson,
+  deletePerson,
+} = require('./utils/dbConroller');
 
 const PORT = process.env.PORT || 5000;
 
@@ -20,67 +22,40 @@ const app = () => {
     const id = getIdFromURL(req.url);
 
     if (req.url.match(/\/person\/\w+/)) {
-      if (!validate(id)) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        return res.end(
-          JSON.stringify({
-            message: messages.INVALID_UUID,
-          })
-        );
-      }
-
-      if (!(await getPersonById(id))) {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        return res.end(
-          JSON.stringify({
-            message: messages.PERSON_NOT_FOUND,
-          })
-        );
+      if (isValidId(res, id) || (await isPersonExists(res, id))) {
+        return;
       }
     }
 
     if (req.method === 'POST' || req.method === 'PUT') {
-      if (!fieldsChecker(reqBody)) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        return res.end(
-          JSON.stringify({
-            message: messages.REQUIRED_FIELDS,
-          })
-        );
+      if (checkRequiredFields(res, reqBody)) {
+        return;
       }
     }
 
     if (req.url === '/person' && req.method === 'GET') {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      const persons = await getAllPersons();
-      return res.end(JSON.stringify(persons));
+      getAllPersons(res);
+      return;
     }
 
     if (req.url.match(/\/person\/\w+/) && req.method === 'GET') {
-      const person = await getPersonById(id);
-
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify(person));
+      getPerson(res, id);
+      return;
     }
 
     if (req.url === '/person' && req.method === 'POST') {
-      const newPerson = await addPerson(reqBody);
-
-      res.writeHead(201, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify(newPerson));
+      createPerson(res, reqBody);
+      return;
     }
 
     if (req.url.match(/\/person\/\w+/) && req.method === 'PUT') {
-      const updatedPerson = await updatePerson(id, reqBody);
-
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify(updatedPerson));
+      updatePerson(res, id, reqBody);
+      return;
     }
 
     if (req.url.match(/\/person\/\w+/) && req.method === 'DELETE') {
-      await deletePerson(id);
-      res.writeHead(204, { 'Content-Type': 'application/json' });
-      return res.end();
+      deletePerson(res, id);
+      return;
     }
 
     res.writeHead(404, { 'Content-Type': 'application/json' });

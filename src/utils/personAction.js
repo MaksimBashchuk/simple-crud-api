@@ -2,12 +2,12 @@ const { v4: uuidv4 } = require('uuid');
 
 const inMemoryDB = [];
 
-const getAllPersons = () =>
+const findAll = () =>
   new Promise((resolve) => {
     resolve(inMemoryDB);
   });
 
-const addPerson = (person) =>
+const create = (person) =>
   new Promise((resolve) => {
     const newPerson = {
       id: uuidv4(),
@@ -17,13 +17,13 @@ const addPerson = (person) =>
     resolve(newPerson);
   });
 
-const getPersonById = (id) =>
+const getById = (id) =>
   new Promise((resolve) => {
     const person = inMemoryDB.find((item) => item.id === id);
     resolve(person);
   });
 
-const updatePerson = (id, body) =>
+const update = (id, body) =>
   new Promise((resolve) => {
     const personIdx = inMemoryDB.findIndex((item) => item.id === id);
     inMemoryDB[personIdx] = {
@@ -33,7 +33,7 @@ const updatePerson = (id, body) =>
     resolve(inMemoryDB[personIdx]);
   });
 
-const deletePerson = (id) =>
+const deleteById = (id) =>
   new Promise((resolve) => {
     const personIdx = inMemoryDB.findIndex((item) => item.id === id);
     inMemoryDB.splice(personIdx, 1);
@@ -41,9 +41,9 @@ const deletePerson = (id) =>
   });
 
 module.exports = {
-  getAllPersons,
-  addPerson,
-  getPersonById,
-  updatePerson,
-  deletePerson,
+  findAll,
+  create,
+  getById,
+  update,
+  deleteById,
 };
