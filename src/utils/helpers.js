@@ -1,4 +1,5 @@
 const { requiredFields } = require('./constants');
+const { messages } = require('./constants');
 
 const getReqBody = (req) =>
   new Promise((resolve, reject) => {
@@ -24,9 +25,19 @@ const createInternalServerError = (res, message) => {
   res.end(JSON.stringify({ message }));
 };
 
+const getBody = (res, body) => {
+  try {
+    return body ? JSON.parse(body) : '';
+  } catch (error) {
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: messages.INVALID_JSON }));
+  }
+};
+
 module.exports = {
   getReqBody,
   fieldsChecker,
   getIdFromURL,
   createInternalServerError,
+  getBody,
 };

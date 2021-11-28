@@ -1,6 +1,6 @@
 const http = require('http');
 require('dotenv').config();
-const { getReqBody, getIdFromURL } = require('./utils/helpers');
+const { getReqBody, getIdFromURL, getBody } = require('./utils/helpers');
 const { messages } = require('./utils/constants');
 const {
   isValidId,
@@ -18,7 +18,10 @@ const PORT = process.env.PORT || 5000;
 const app = () => {
   const server = http.createServer(async (req, res) => {
     const rawBody = await getReqBody(req);
-    const reqBody = rawBody ? JSON.parse(rawBody) : '';
+    const reqBody = getBody(res, rawBody);
+    if (reqBody === undefined) {
+      return;
+    }
     const id = getIdFromURL(req.url);
 
     if (req.url.match(/\/person\/\w+/)) {
